@@ -137,7 +137,8 @@ declare module "uTools" {
 默认值：`''`
 
 插件`plugin.json`文件路径
-注意 ⚠️：需要在`pluginFile`的`plugin.json`中需要指向到 preload 入口文件，假如你的`preload:'./plugin/index.ts'`表示相对当前`plugin.json`所在路径，之后会自动转换
+
+> 注意 ⚠️：需要在`pluginFile`的`plugin.json`中需要指向到 preload 入口文件，假如你的`preload:'./plugin/index.ts'`表示相对当前`plugin.json`所在路径，之后会自动转换。
 
 ### external
 
@@ -155,7 +156,7 @@ declare module "uTools" {
 
 默认值：`true`
 
-`preload.js`修改后重新构建,配合 uTools 开发者工具开启`隐藏插件后完全退出`使用
+`preload.js`修改后重新构建，配合 uTools 开发者工具开启`隐藏插件后完全退出`使用
 
 ### preload.minify
 
@@ -168,8 +169,8 @@ declare module "uTools" {
 默认值：`undefined`
 返回值：`(preloadCode:string) => string(required)`
 
-可以通过该函数，修改最终`preload.js`内容
-如果定义了该函数，其返回值会被设置为最终`preload.js`的内容。
+可以通过该函数，修改`preload.js`内容。
+该函数的返回值会被设置为`preload.js`的内容。
 
 ### buildUpx.outDir
 
