@@ -131,7 +131,7 @@ declare module "uTools" {
 
 ## 配置
 
-### buildUpx.pluginPath
+### pluginFile
 
 （必须）
 默认值：`''`
@@ -147,7 +147,7 @@ declare module "uTools" {
 
 扩展`window.utools`的模块名，
 
-### preload. name
+### preload.name
 
 默认值：`preload`
 
