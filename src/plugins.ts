@@ -1,6 +1,6 @@
 import { dirname } from 'node:path';
-import resolveModule from 'resolve';
-import { build as viteBuild, Plugin, ResolvedConfig } from 'vite';
+import escapeRegexStr from '@jsbits/escape-regex-str';
+import { build as viteBuild, createServer, Plugin, ResolvedConfig } from 'vite';
 import MagicString from 'magic-string';
 
 import buildUpx from './buildUpx';
@@ -16,7 +16,6 @@ import {
 } from './helper';
 import { RequiredOptions } from './options';
 import { buildPluginJson, buildPreload, getDistPath } from './prepare';
-import transformExternal from './transform/external';
 import { getPluginJSON } from './utils';
 
 
@@ -59,24 +58,6 @@ export const preloadPlugin = (options: RequiredOptions): Plugin => {
         options.preload.watch = false
       }
     },
-    // transform: (code, id) => {
-    //   if (!transformFilter(id)) return code;
-    //   const resolve = (sourcePath: string) => {
-    //     try {
-    //       return resolveModule.sync(sourcePath, {
-    //         basedir: dirname(id),
-    //         extensions: RESOLVE_MODULE_EXTENSIONS,
-    //       });
-    //     } catch (_) {
-    //       return '';
-    //     }
-    //   };
-
-    //   return transformExternal(code, (sourcePath) => {
-    //     const resolvedPath = resolve(replaceAlias(sourcePath));
-    //     return filter(resolvedPath) ? name : void 0;
-    //   });
-    // },
     handleHotUpdate: async ({ file, server }) => {
       if (file.includes(getDistPath(server.config, 'plugin.json'))) {
         getPluginJSON(options.pluginFile, true)
@@ -88,7 +69,7 @@ export const preloadPlugin = (options: RequiredOptions): Plugin => {
 };
 
 export const apiExternalPlugin = (options: RequiredOptions): Plugin => {
-  const { preload: { name, onGenerate } } = options
+  const { preload: { name, onGenerate }, external } = options
   let config: ResolvedConfig
 
   return {
@@ -108,12 +89,19 @@ export const apiExternalPlugin = (options: RequiredOptions): Plugin => {
         const scode = new MagicString(preoloadCode);
         // clear needless code
         scode.update(13, 14, name ? `\nwindow['${name}'] = Object.create(null);\n` : '')
+
+        // remove externals `require('xxx')`
+        external.forEach((mod) => {
+          scode.replace(new RegExp(escapeRegexStr(`require('${mod}')`)), 'void 0')
+        })
+
         // inject into global window
         exportsKeys.forEach((key: string) => {
           const reg = new RegExp(`^exports.${key}`, 'mg')
           scode.replaceAll(reg, name ? `window['${name}'].${key}` : `window['${key}']`)
           scode.replaceAll(`defineProperty(exports, '${key}'`, `create(${name || 'window'}, '${key}'`)
         });
+
         // @ts-expect-error onGenerate is function
         const source = onGenerate ? onGenerate.call(scode, scode.toString()) : scode.toString()
         this.emitFile({

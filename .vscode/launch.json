@@ -5,16 +5,16 @@
   "version": "0.2.0",
   "configurations": [
     {
+      "name": "Debug Vite Plugin",
       "type": "node",
       "request": "launch",
-      "name": "vite plugin",
-      "runtimeExecutable": "tsx",
-      "runtimeArgs": [
-        "${workspaceFolder}/node_modules/vite/bin/vite.js",
-        "--debug",
-        "-c",
-        "${workspaceFolder}/playground/vite.config.ts"
-      ]
+      "runtimeExecutable": "sh",
+      "args": ["node_modules/.bin/vite", "--config", "vite.config.ts"],
+      "runtimeArgs": ["--inspect-brk"],
+      "port": 9229,
+      "restart": true,
+      "sourceMaps": true,
+      "cwd": "${workspaceFolder}/playground"
     }
   ]
 }

@@ -139,6 +139,7 @@ declare module "uTools" {
 插件`plugin.json`文件路径
 
 > 注意 ⚠️：需要在`pluginFile`的`plugin.json`中需要指向到 preload 入口文件，假如你的`preload:'./plugin/index.ts'`表示相对当前`plugin.json`所在路径，之后会自动转换。
+> 然后，所有需要在应用中使用到的函数或其他(当然除了 ts 类型)，都需要通过`preload`入口文件中导出使用（即挂载到`window`上）。
 
 ### external
 
