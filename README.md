@@ -1,4 +1,4 @@
-# vite-plugin-utools-v5
+# @ver5/vite-plugin-utools
 
 <a href="http://www.u.tools/">Utools</a> for Vite
 
