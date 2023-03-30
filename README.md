@@ -11,7 +11,7 @@
 ## 用法
 
 ```bash
-npm i vite-plugin-utools-v5 -D
+npm i @ver5/vite-plugin-utools -D
 ```
 
 在 `vite.config.js` 中添加配置
