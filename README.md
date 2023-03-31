@@ -114,13 +114,11 @@ declare module "uTools" {
 ```
 
 ## Upx 打包
-
-在插件的 `plugin.json` 文件添加额外配置 3. 修改 ./public/plugin.json
-
+插件的 `plugin.json` 文件必须项
 ```json
 "name": "demo", // uTools 开发者工具中的项目 id
-"version": "1.0.0",
 "pluginName": "demo",
+"version": "1.0.0",
 "description": "demo",
 "author": "yo3emite",
 "logo": "logo.png",
@@ -139,13 +137,13 @@ declare module "uTools" {
 插件`plugin.json`文件路径
 
 > 注意 ⚠️：需要在`pluginFile`的`plugin.json`中需要指向到 preload 入口文件，假如你的`preload:'./plugin/index.ts'`表示相对当前`plugin.json`所在路径，之后会自动转换。
-> 然后，所有需要在应用中使用到的函数或其他(当然除了 ts 类型)，都需要通过`preload`入口文件中导出使用（即挂载到`window`上）。
+> 所有需要在应用中使用到的函数或其他(当然除了 ts 类型)，都需要通过`preload`入口文件导出使用（即挂载到`window`上）。
 
 ### external
 
-默认值：`utools-api-types`
+默认值：`utools-api-types`,
 
-扩展`window.utools`的模块名，
+对于不想打包的包，可以先`external`排除掉，例如`external: ['tiktoken', 'uTools']`,，然后通过 [vite-plugin-static-copy](https://github.com/sapphi-red/vite-plugin-static-copy) 复制到目标目录。
 
 ### preload.name
 
@@ -186,8 +184,7 @@ declare module "uTools" {
 插件输出文件名
 
 # TODO
-
-1. 生成所有 window 下的类型
-2. preload 自动更新
-3. preload 可放在目录，不打成一个 bundle
-4. 去除 .DS_store 文件
+- [ ] 生成所有 window 下的类型
+- [ ] preload 自动更新
+- [ ] preload 可放在目录，不打成一个 bundle
+- [ ] 去除 .DS_store 文件
