@@ -28,7 +28,7 @@ export interface BuildUpxOptions {
 }
 
 export interface Options {
-  pluginFile: string;
+  configFile: string;
   external?: string[],
   preload?: PreloadOptions | null
   buildUpx?: BuildUpxOptions | null
@@ -42,7 +42,7 @@ export type NestedRequired<T> = {
 export type RequiredOptions = NestedRequired<Options>;
 
 const defaultOptions: Options = {
-  pluginFile: '',
+  configFile: '',
   external: ['utools-api-types'],
   preload: {
     watch: true,
@@ -56,7 +56,7 @@ const defaultOptions: Options = {
 };
 
 export const resolveOptions = (options: Options) => {
-  getPluginJSON(options.pluginFile)
+  getPluginJSON(options.configFile)
 
   return Object.entries(defaultOptions).reduce((ret, [key, v1]) => {
 

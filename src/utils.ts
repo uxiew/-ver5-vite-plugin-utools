@@ -1,4 +1,4 @@
-import { readFileSync } from 'node:fs';
+import { readFileSync, existsSync } from 'node:fs';
 import { dirname, isAbsolute, resolve as resolvePath } from 'node:path';
 
 import colors from 'picocolors';
@@ -8,12 +8,12 @@ import { cwd } from './helper';
 import type { PluginJSON } from './options';
 
 const requiredKeys = [
-  'name',
-  'pluginName',
-  'description',
-  'author',
-  'homepage',
-  'version',
+  // 'name',
+  // 'pluginName',
+  // 'description',
+  // 'author',
+  // 'homepage',
+  // 'version',
   'logo',
   'features',
 ] as const;
@@ -27,18 +27,23 @@ const validatePluginOptions = (options: PluginJSON) => {
 
 let pluginContext: Required<PluginJSON>
 
+/**
+*@description 获取 plugin json 文件
+*/
 export const getPluginJSON = (path?: string, reload?: boolean) => {
   // @ts-ignore
   if (reload) pluginContext = null
   if (pluginContext) return pluginContext;
-  if (!path) throw new Error(`You should specify a plugin file by pluginFile!`);
+  if (!path) throw new Error(`You should specify plugin.json file by configFile!`);
 
   const requirePath = isAbsolute(path) ? path : resolvePath(cwd, path);
   pluginContext = JSON.parse(readFileSync(requirePath, 'utf-8'));
   validatePluginOptions(pluginContext);
   if (!pluginContext.preload) console.warn("no preload file required")
+  const preloadEntryFile = resolvePath(dirname(requirePath), normalizePath(pluginContext.preload));
+  if (!existsSync(preloadEntryFile)) throw new Error(`[@ver5/utools]: ${preloadEntryFile} not exists, Please check if it exists!`);
   else {
-    pluginContext.preload = resolvePath(dirname(requirePath), normalizePath(pluginContext.preload));
+    pluginContext.preload = preloadEntryFile
   }
   return pluginContext;
 };

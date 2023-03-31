@@ -16,8 +16,8 @@ export default defineConfig((env) => {
     plugins: [
       // Inspect(),
       utools({
-        pluginFile: path.join(process.cwd(), 'utools/plugin.json'),
-        // pluginFile: path.join(process.cwd(), 'playground/utools/plugin.json'),
+        configFile: path.join(process.cwd(), 'utools/plugin.json'),
+        // configFile: path.join(process.cwd(), 'playground/utools/plugin.json'),
         external: ['vite', 'vite-plugin-inspect'],
         preload: {
           watch: true,

@@ -23,7 +23,7 @@ export default {
   plugins: [
     utools({
       // plugin.json 路径
-      pluginFile: "./utools/plugin.json",
+      configFile: "./utools/plugin.json",
       // 不需要打包的库
       external: ["uTools"],
       // preload 相关配置
@@ -114,7 +114,9 @@ declare module "uTools" {
 ```
 
 ## Upx 打包
+
 插件的 `plugin.json` 文件必须项
+
 ```json
 "name": "demo", // uTools 开发者工具中的项目 id
 "pluginName": "demo",
@@ -129,14 +131,14 @@ declare module "uTools" {
 
 ## 配置
 
-### pluginFile
+### configFile
 
 （必须）
 默认值：`''`
 
 插件`plugin.json`文件路径
 
-> 注意 ⚠️：需要在`pluginFile`的`plugin.json`中需要指向到 preload 入口文件，假如你的`preload:'./plugin/index.ts'`表示相对当前`plugin.json`所在路径，之后会自动转换。
+> 注意 ⚠️：需要在`configFile`的`plugin.json`中指向 preload 入口文件，假如你的`preload:'./plugin/index.ts'`表示相对当前`plugin.json`所在路径，之后会自动转换。
 > 所有需要在应用中使用到的函数或其他(当然除了 ts 类型)，都需要通过`preload`入口文件导出使用（即挂载到`window`上）。
 
 ### external
@@ -184,6 +186,7 @@ declare module "uTools" {
 插件输出文件名
 
 # TODO
+
 - [ ] 生成所有 window 下的类型
 - [ ] preload 自动更新
 - [ ] preload 可放在目录，不打成一个 bundle

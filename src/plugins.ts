@@ -24,7 +24,7 @@ const O_MODE = 'SSR bundle'
 
 let localUrl = ''
 export const preloadPlugin = (options: RequiredOptions): Plugin => {
-  if (!options.pluginFile)
+  if (!options.configFile)
     return {
       name: 'vite:utools-preload',
     };
@@ -60,10 +60,10 @@ export const preloadPlugin = (options: RequiredOptions): Plugin => {
     },
     handleHotUpdate: async ({ file, server }) => {
       if (file.includes(getDistPath(server.config, 'plugin.json'))) {
-        getPluginJSON(options.pluginFile, true)
+        getPluginJSON(options.configFile, true)
         buildPluginJson(server.config, localUrl)
       }
-      if (file.includes(dirname(options.pluginFile))) await viteBuild()
+      if (file.includes(dirname(options.configFile))) await viteBuild()
     },
   };
 };
@@ -131,7 +131,7 @@ export const buildUpxPlugin = (options: RequiredOptions): Plugin => {
     closeBundle: async () => {
       if (config.mode === BUILD_UTOOLS_MODE && config.isProduction) {
         buildPluginJson(config, localUrl)
-        if (!options.buildUpx || !options.pluginFile) return;
+        if (!options.buildUpx || !options.configFile) return;
         await buildUpx(config.build.outDir, options, config.logger);
       }
     },
