@@ -150,6 +150,8 @@ window.preload = {
 export const name = "test";
 ```
 
+> 你可能还需要手动将其添加到`tsconfig.json`的`include`中，类似`"include": ["src", "./utools/preload.d.ts"]`，以便生效！
+
 ### external
 
 默认值：`utools-api-types`,

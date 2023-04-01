@@ -72,7 +72,7 @@ export const getPluginJSON = (path?: string, reload?: boolean) => {
  */
 export function buildFile(content: string, filename: string, options: RequiredOptions) {
   if (existsSync(resolvePath(cwd, 'tsconfig.json')) || options.autoType === true) {
-    colors.green(`generate ${filename} for preload...`)
+    colors.green(`generate ${filename} for utools mode`)
     writeFileSync(resolve(dirname(getPluginJSON().preload), filename), content)
   }
 }
@@ -89,14 +89,12 @@ export function generateTypes(name: string, exportKeys: string[]) {
   // console.log("generateTypes", name, exportKeys)
 
   const preloadFileNoExt = basename(getPluginJSON().preload.replace(/\.(t|j)s/, ''));
+
+  typesContent += `interface Window {\n`
   if (name) {
-    typesContent += `interface Window {
-    preload: {\n`
-      + exportKeys.map((key) => `      ${key}: typeof import('./${preloadFileNoExt}')['${key}']`).join("\n")
-      + `${exportKeys.length > 0 ? '\n' : ''}    `
-      + `}\n}`
-
-
+    typesContent += `  ${name}: {\n`
+      + exportKeys.map((key) => `    ${key}: typeof import('./${preloadFileNoExt}')['${key}']`).join("\n")
+      + '\n  }\n'
     //     typesContent += `interface Window {
     //       preload: {
     //         post: typeof import('./preload/index')['post']
@@ -108,6 +106,7 @@ export function generateTypes(name: string, exportKeys: string[]) {
     // }
     //   }`
   }
+  typesContent += `}`
 
   return typesContent
 }
