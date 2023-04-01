@@ -101,6 +101,7 @@ onPluginReady(() => {
 ## Upx 打包
 
 插件的 `plugin.json` 文件必须项
+以下字段不设置，会自动取 package.json 中对应的自动字段，没有的话，则报错！
 
 ```json
 "name": "demo", // uTools 开发者工具中的项目 id
@@ -108,8 +109,9 @@ onPluginReady(() => {
 "version": "0.0.1",
 "description": "demo",
 "author": "chandlerVer5",
-"logo": "logo.png",
 "homepage": "https://github.com/13enbi",
+"logo": "logo.png",
+"features":[]
 ```
 
 可将 vite 构建后的产物打包成 uTools 的 `upx` 离线包
