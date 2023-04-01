@@ -16,7 +16,7 @@ import {
 } from './helper';
 import { RequiredOptions } from './options';
 import { buildPluginJson, buildPreload, getDistPath } from './prepare';
-import { getPluginJSON } from './utils';
+import { buildFile, generateTypes, getPluginJSON } from './utils';
 
 
 const NAME = 'preload.js'
@@ -46,7 +46,7 @@ export const preloadPlugin = (options: RequiredOptions): Plugin => {
 
       const log = c.logger.info
       c.logger.info = (info) => {
-        info = info.includes(O_MODE) ? info.replace(O_MODE, "uTools boundle") : info
+        info = info.includes(O_MODE) ? info.replace(O_MODE, "uTools bundle") : info
         if (info.includes('Local')) {
           buildPluginJson(c, localUrl = getLocalUrl(info))
         }
@@ -63,7 +63,7 @@ export const preloadPlugin = (options: RequiredOptions): Plugin => {
         getPluginJSON(options.configFile, true)
         buildPluginJson(server.config, localUrl)
       }
-      if (file.includes(dirname(options.configFile))) await viteBuild()
+      // if (file.includes(dirname(options.configFile))) await viteBuild()
     },
   };
 };
@@ -102,6 +102,9 @@ export const apiExternalPlugin = (options: RequiredOptions): Plugin => {
           scode.replaceAll(`defineProperty(exports, '${key}'`, `create(${name || 'window'}, '${key}'`)
         });
 
+        // 生成 type?
+        buildFile(generateTypes(name, exportsKeys), 'preload.d.ts', options)
+
         // @ts-expect-error onGenerate is function
         const source = onGenerate ? onGenerate.call(scode, scode.toString()) : scode.toString()
         this.emitFile({
@@ -131,7 +134,7 @@ export const buildUpxPlugin = (options: RequiredOptions): Plugin => {
     closeBundle: async () => {
       if (config.mode === BUILD_UTOOLS_MODE && config.isProduction) {
         buildPluginJson(config, localUrl)
-        if (!options.buildUpx || !options.configFile) return;
+        if (!options.configFile || !options.upx) return;
         await buildUpx(config.build.outDir, options, config.logger);
       }
     },

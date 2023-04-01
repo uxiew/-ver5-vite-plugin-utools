@@ -16,7 +16,7 @@ export default defineConfig((env) => {
     plugins: [
       // Inspect(),
       utools({
-        configFile: path.join(process.cwd(), 'utools/plugin.json'),
+        configFile: path.join(process.cwd(), 'utools', 'plugin.json'),
         // configFile: path.join(process.cwd(), 'playground/utools/plugin.json'),
         external: ['vite', 'vite-plugin-inspect'],
         preload: {
@@ -24,7 +24,7 @@ export default defineConfig((env) => {
           name: 'res',
           minify: false,
         },
-        buildUpx: {
+        upx: {
           outName: '[pluginName]_[version].upx',
         },
       }),

@@ -36,7 +36,7 @@ export default {
         minify: false,
         onGenerate: undefined,
       },
-      buildUpx: {
+      upx: {
         outDir: "dist",
         outName: "[pluginName]_[version].upx",
       },
@@ -98,21 +98,6 @@ onPluginReady(() => {
 });
 ```
 
-### TypeScript 类型支持
-
-可使用官方提供的 utools-api-types 类型文件
-
-```
-npm i -D utools-api-types
-```
-
-```ts
-declare module "uTools" {
-  import Utools from "utools-api-types";
-  export = Utools;
-}
-```
-
 ## Upx 打包
 
 插件的 `plugin.json` 文件必须项
@@ -120,9 +105,9 @@ declare module "uTools" {
 ```json
 "name": "demo", // uTools 开发者工具中的项目 id
 "pluginName": "demo",
-"version": "1.0.0",
+"version": "0.0.1",
 "description": "demo",
-"author": "yo3emite",
+"author": "chandlerVer5",
 "logo": "logo.png",
 "homepage": "https://github.com/13enbi",
 ```
@@ -140,6 +125,28 @@ declare module "uTools" {
 
 > 注意 ⚠️：需要在`configFile`的`plugin.json`中指向 preload 入口文件，假如你的`preload:'./plugin/index.ts'`表示相对当前`plugin.json`所在路径，之后会自动转换。
 > 所有需要在应用中使用到的函数或其他(当然除了 ts 类型)，都需要通过`preload`入口文件导出使用（即挂载到`window`上）。
+
+### autoType
+
+默认值：`false`
+
+如果当前项目属于 typescript 项目，或者 强制设置`autoType:true`会生成名为`preload.d.ts`的类型文件（相对于`configFile`中的`preload`路径）。
+
+基本上有两个作用：
+
+1. 自动配置 utools api 的类型声明（使用官方提供的 utools-api-types 类型文件）
+2. 根据 `preload.js`在`window`的挂载名，生成相应的 typescript 类型
+   必须通过 导出的形式！
+
+```ts
+// 错误🙅
+window.preload = {
+  name: "test",
+};
+
+// 正确🙆
+export const name = "test";
+```
 
 ### external
 
@@ -173,13 +180,13 @@ declare module "uTools" {
 可以通过该函数，修改`preload.js`内容。
 该函数的返回值会被设置为`preload.js`的内容。
 
-### buildUpx.outDir
+### upx.outDir
 
 默认值： `dist`
 
 插件打包输出路径
 
-### buildUpx.outName
+### upx.outName
 
 默认值：`[pluginName]_[version].upx`
 
@@ -187,7 +194,6 @@ declare module "uTools" {
 
 # TODO
 
-- [ ] 生成所有 window 下的类型
-- [ ] preload 自动更新
-- [ ] preload 可放在目录，不打成一个 bundle
+- [ ] 生成 ts 类型
+- [ ] preload 自动 reload
 - [ ] 去除 .DS_store 文件

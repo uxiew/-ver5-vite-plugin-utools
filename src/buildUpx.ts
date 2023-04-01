@@ -8,7 +8,7 @@ import colors from 'picocolors';
 import { ResolvedConfig } from 'vite';
 
 import { cwd, Data, isString } from './helper';
-import { BuildUpxOptions, NestedRequired, PluginJSON, RequiredOptions } from './options';
+import { UpxOptions as BuildUpxOptions, NestedRequired, PluginJSON, RequiredOptions } from './options';
 import { getPluginJSON } from './utils';
 
 const formatPluginOptions = (pluginOptions: Data, needPreload: boolean) => {
@@ -53,7 +53,7 @@ const doBuild = async (input: string, out: string) => {
 };
 
 export const buildUpx = async (input: string, options: RequiredOptions, logger: ResolvedConfig['logger']) => {
-  const { buildUpx: buildOptions, preload } = options;
+  const { upx: buildOptions, preload } = options;
 
   logger.info(colors.green('\nbuilding for upx....'));
 

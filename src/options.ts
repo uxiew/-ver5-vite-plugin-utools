@@ -22,16 +22,17 @@ export interface PluginJSON {
   version?: string;
 }
 
-export interface BuildUpxOptions {
+export interface UpxOptions {
   outDir?: string;
   outName?: string;
 }
 
 export interface Options {
   configFile: string;
+  autoType: boolean;
   external?: string[],
   preload?: PreloadOptions | null
-  buildUpx?: BuildUpxOptions | null
+  upx?: UpxOptions | null
 }
 
 export type NestedRequired<T> = {
@@ -44,32 +45,38 @@ export type RequiredOptions = NestedRequired<Options>;
 const defaultOptions: Options = {
   configFile: '',
   external: ['utools-api-types'],
+  autoType: false,
   preload: {
     watch: true,
     name: 'preload',
     minify: false,
   },
-  buildUpx: {
+  upx: {
     outDir: 'dist',
     outName: '[pluginName]_[version].upx',
   },
 };
 
 export const resolveOptions = (options: Options) => {
+
   getPluginJSON(options.configFile)
 
-  return Object.entries(defaultOptions).reduce((ret, [key, v1]) => {
+  return Object.entries(defaultOptions).reduce((ret, [key, defaultVal]) => {
 
-    if (key === 'buildUpx' && options.buildUpx === null) {
-      return ret;
-    }
     // @ts-ignore
-    const v2 = options[key];
+    const optsVal = options[key];
+
+    if (key === 'upx' && isUndef(optsVal)) {
+      ret[key] = false
+      return ret
+    }
+
     if (key === 'external') {
-      ret[key] = Array.isArray(v2) ? v2 : [v2]
+      ret[key] = Array.isArray(optsVal) ? optsVal : [optsVal]
     } else {
-      ret[key] = isUndef(v2) ? v1 : isObject(v1) && isObject(v2) ? { ...v1, ...v2 } : v2;
+      ret[key] = isUndef(optsVal) ? defaultVal : (isObject(defaultVal) && isObject(optsVal) ? { ...defaultVal, ...optsVal } : optsVal);
     }
     return ret;
+
   }, {} as any);
 }

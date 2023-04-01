@@ -8,11 +8,15 @@
     ".": {
       "import": "./dist/index.mjs",
       "require": "./dist/index.js"
+    },
+    "./utools": {
+      "types": "./utools.d.ts"
     }
   },
   "types": "./dist/index.d.ts",
   "files": [
-    "dist"
+    "dist",
+    "utools.d.ts"
   ],
   "scripts": {
     "build": "tsup-node src/index.ts --target node16 --clean --sourcemap --dts --format cjs,esm ",
