@@ -29,7 +29,7 @@ export interface UpxOptions {
 
 export interface Options {
   configFile: string;
-  autoType: boolean;
+  autoType?: boolean;
   external?: string[],
   preload?: PreloadOptions | null
   upx?: UpxOptions | null

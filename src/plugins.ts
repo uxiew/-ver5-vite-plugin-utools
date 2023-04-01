@@ -1,6 +1,5 @@
-import { dirname } from 'node:path';
 import escapeRegexStr from '@jsbits/escape-regex-str';
-import { build as viteBuild, createServer, Plugin, ResolvedConfig } from 'vite';
+import { build as viteBuild, Plugin, ResolvedConfig } from 'vite';
 import MagicString from 'magic-string';
 
 import buildUpx from './buildUpx';
