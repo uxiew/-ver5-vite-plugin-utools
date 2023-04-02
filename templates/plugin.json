@@ -2,7 +2,7 @@
   "main": "index.html",
   "logo": "logo.png",
   "preload": "preload.ts",
-  "author": "utools",
+  "author": "@ver5/vite-plugin-utools",
   "homepage": "https://www.github.com/",
   "description": "uTools template 😄",
   "features": [

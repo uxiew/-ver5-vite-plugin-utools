@@ -16,11 +16,13 @@
   "types": "./dist/index.d.ts",
   "files": [
     "dist",
-    "utools.d.ts"
+    "utools.d.ts",
+    "templates"
   ],
   "scripts": {
-    "build": "tsup-node src/index.ts --target node16 --clean --sourcemap --dts --format cjs,esm ",
-    "dev": "npm run build -- --watch",
+    "build": "tsup && npm run build:scripts",
+    "build:scripts": "tsup-node scripts/template.ts --format cjs --clean false",
+    "dev": "npm run build -- --watch & npm run build:scripts -- --watch",
     "release": "npm run build && bumpp --commit --tag --push && npm publish"
   },
   "repository": {
@@ -39,12 +41,13 @@
   },
   "homepage": "https://github.com/chandlerver5/vite-plugin-utools#readme",
   "devDependencies": {
+    "@electron/asar": "^3.2.3",
     "@types/babel__core": "^7.1.19",
     "@types/babel__generator": "^7.6.4",
     "@types/node": "^16.11.65",
     "@types/resolve": "^1.20.2",
     "bumpp": "^7.2.0",
-    "tsup": "^6.6.3",
+    "tsup": "^6.7.0",
     "typescript": "^4.9.5",
     "vite": "^3.2.3"
   },
@@ -52,10 +55,10 @@
     "@babel/core": "^7.19.3",
     "@babel/generator": "^7.19.5",
     "@babel/parser": "^7.19.4",
-    "@electron/asar": "^3.2.3",
     "@jsbits/escape-regex-str": "^1.0.3",
     "@rollup/pluginutils": "^4.2.1",
     "magic-string": "^0.30.0",
+    "original-fs": "^1.2.0",
     "picocolors": "^1.0.0"
   },
   "publishConfig": {
