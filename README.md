@@ -7,8 +7,16 @@
 - 支持 preload.js 模块化
 - 支持 uTools api 模块化
 - 支持插件打包
+- 支持生成模版
 
 ## 用法
+
+> 直接生成模版：
+> 在 package.json `scripts`中添加：
+>
+> ```json
+> "utools": "node ./node_modules/@ver5/vite-plugin-utools/dist/template.js --dir utools",
+> ```
 
 ```bash
 npm i @ver5/vite-plugin-utools -D
