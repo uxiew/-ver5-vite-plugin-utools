@@ -20,8 +20,8 @@
     "templates"
   ],
   "scripts": {
-    "build": "tsup && npm run build:scripts",
-    "build:scripts": "tsup-node scripts/template.ts --format cjs --clean false",
+    "build": "tsup-node && npm run build:scripts",
+    "build:scripts": "tsup-node --no-config scripts/template.ts --format cjs --clean false",
     "dev": "npm run build -- --watch & npm run build:scripts -- --watch",
     "release": "npm run build && bumpp --commit --tag --push && npm publish"
   },

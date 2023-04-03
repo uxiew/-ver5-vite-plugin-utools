@@ -1,10 +1,11 @@
-import { mkdirSync, constants, existsSync, readdirSync, copyFile, readFileSync } from "fs"
-import { resolve } from "path";
+import { mkdirSync, constants, existsSync, readdirSync, copyFile, readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 
 
 function buildTemplates() {
   if (process.argv.slice(2)[0] !== "--dir") throw new Error('template CLI args error!!!')
   const dir = resolve(process.cwd(), process.argv.slice(3)[0])
+  // const viteConfigFile = resolve(process.cwd(), 'vite.config') + resolve(process.cwd(), 'tsconfig.json') ? '.ts' : '.js'
 
 
   if (!existsSync(dir)) {
@@ -23,7 +24,6 @@ function buildTemplates() {
   } else {
     console.log(`${process.argv.slice(3)[0]} dir already existed, skipped...`);
   }
-
 }
 
 
