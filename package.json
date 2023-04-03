@@ -41,7 +41,6 @@
   },
   "homepage": "https://github.com/chandlerver5/vite-plugin-utools#readme",
   "devDependencies": {
-    "@electron/asar": "^3.2.3",
     "@types/babel__core": "^7.1.19",
     "@types/babel__generator": "^7.6.4",
     "@types/node": "^16.11.65",
@@ -55,6 +54,7 @@
     "@babel/core": "^7.19.3",
     "@babel/generator": "^7.19.5",
     "@babel/parser": "^7.19.4",
+    "@electron/asar": "^3.2.3",
     "@jsbits/escape-regex-str": "^1.0.3",
     "@rollup/pluginutils": "^4.2.1",
     "magic-string": "^0.30.0",

@@ -206,6 +206,5 @@ export const name = "test";
 
 # TODO
 
-- [ ] 生成 ts 类型
+- [x] 生成 ts 类型
 - [ ] preload 自动 reload
-- [ ] 去除 .DS_store 文件
