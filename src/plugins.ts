@@ -98,7 +98,7 @@ export const apiExternalPlugin = (options: RequiredOptions): Plugin => {
         exportsKeys.forEach((key: string) => {
           const reg = new RegExp(`^exports.${key}`, 'mg')
           scode.replaceAll(reg, name ? `window['${name}'].${key}` : `window['${key}']`)
-          scode.replaceAll(`defineProperty(exports, '${key}'`, `create(${name || 'window'}, '${key}'`)
+          scode.replaceAll(`defineProperty(exports, '${key}'`, `defineProperty(${name || 'window'}, '${key}'`)
         });
 
         // 生成 type?
