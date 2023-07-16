@@ -26,7 +26,7 @@ npm i @ver5/vite-plugin-utools -D
 在 `vite.config.js` 中添加配置
 
 ```js
-import utools from "vite-plugin-utools";
+import utools from "@ver5/vite-plugin-utools";
 
 export default {
   plugins: [
@@ -57,8 +57,7 @@ export default {
 ## 模块化开发
 preload 文件支持 ESM\TS & 支持引入三方库；
 
-> 注意 ⚠️：需要在`configFile`的`plugin.json`文件中指向 preload 入口文件，假如你的`preload:'./plugin/index.ts'`表示相对当前`plugin.json`所在路径，之后会自动转换。
-> 所有需要在插件中使用到的函数或其他(当然除了 ts 类型)，都需要通过`preload`入口文件导出使用（即挂载到`window`上）。
+> 注意 ⚠️：需要在`configFile`的`plugin.json`文件中指定 preload 入口文件，假如你的`preload:'./plugin/index.ts'`表示相对当前`plugin.json`所在路径，之后会自动转换。
 
 假设 preload 入口文件是`index.ts`，并且配置了 preload 的`name: 'preload'`
 ```js
@@ -67,6 +66,7 @@ preload 文件支持 ESM\TS & 支持引入三方库；
 import { readFileSync } from "fs";
 import _fdir from "fdir";
 
+// 所有需要挂载到`window`上的函数或其他，都需要导出使用（记住：只能在入口文件中导出！）
 export const readConfig = () => readFileSync("./config.json");
 export const fdir = _fdir;
 ```
@@ -145,23 +145,13 @@ onPluginReady(() => {
 1. 自动配置 utools api 的类型声明（使用官方提供的 utools-api-types 类型文件）
 2. 生成相应的 typescript 类型
 
-```ts
-// 错误🙅
-window.preload = {
-  name: "test",
-};
-
-// 正确🙆
-export const name = "test";
-```
-
-> 你可能还需要手动将其添加到`tsconfig.json`的`include`中，类似`"include": ["src", "./utools/preload.d.ts"]`，以便生效！
+> 如果不生效，请尝试 utools 的类型声明添加到`tsconfig.json`的`include`中，类似`"types": ["utools-api-types"]`，以便生效！
 
 ## external
 
 默认值：`utools-api-types`,
 
-对于不想打包的包，可以先`external`排除掉，例如`external: ['tiktoken', 'uTools']`,，然后通过 [vite-plugin-static-copy](https://github.com/sapphi-red/vite-plugin-static-copy) 复制到目标目录。
+对于不想打包的包，可以先`external`排除掉，例如`external: ['tiktoken']`,，然后通过 [vite-plugin-static-copy](https://github.com/sapphi-red/vite-plugin-static-copy) 复制到目标目录。
 
 ## preload.name
 
