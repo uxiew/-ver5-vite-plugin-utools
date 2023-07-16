@@ -23,9 +23,7 @@ const DOC_URL = 'https://www.u.tools/docs/developer/config.html#基本配置';
 let pluginContext: Required<PluginJSON>
 
 const validatePluginJson = (options: PluginJSON) => {
-
   if (!pluginContext.preload) console.warn("no preload file required")
-
   const pkg = JSON.parse(readFileSync(resolvePath(cwd, 'package.json'), 'utf8'))
 
   requiredKeys.forEach((key) => {
@@ -95,16 +93,6 @@ export function generateTypes(name: string, exportKeys: string[]) {
     typesContent += `  ${name}: {\n`
       + exportKeys.map((key) => `    ${key}: typeof import('./${preloadFileNoExt}')['${key}']`).join("\n")
       + '\n  }\n'
-    //     typesContent += `interface Window {
-    //       preload: {
-    //         post: typeof import('./preload/index')['post']
-    //   initServer: typeof import('./preload/index')['initServer']
-    //   API_MODEL_OPT: typeof import('./preload/index')['API_MODEL_OPT']
-    //   retrieve: typeof import('./preload/index')['retrieve']
-    //   DEFAULT_CONFIG: typeof import('./preload/index')['DEFAULT_CONFIG']
-    //   update: typeof import('./preload/index')['update']
-    // }
-    //   }`
   }
   typesContent += `}`
 
