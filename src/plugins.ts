@@ -3,23 +3,15 @@ import { build as viteBuild, Plugin, ResolvedConfig } from 'vite';
 import MagicString from 'magic-string';
 
 import buildUpx from './buildUpx';
-import { BUILD_UTOOLS_MODE } from './constant';
+import { FILE_NAME, SSR_MODE, UTOOLS_BUILD_MODE } from './constant';
 import {
   createPreloadFilter,
-  createReplaceAlias,
   getLocalUrl,
   isUndef,
-  ReplaceAlias,
-  RESOLVE_MODULE_EXTENSIONS,
-  transformFilter,
 } from './helper';
 import { RequiredOptions } from './options';
 import { buildPluginJson, buildPreload, getDistPath } from './prepare';
 import { buildFile, generateTypes, getPluginJSON } from './utils';
-
-
-const NAME = 'preload.js'
-const O_MODE = 'SSR bundle'
 
 let localUrl = ''
 export const preloadPlugin = (options: RequiredOptions): Plugin => {
@@ -31,21 +23,17 @@ export const preloadPlugin = (options: RequiredOptions): Plugin => {
   const { preload: { name } } = options;
 
   const path = getPluginJSON().preload || ''
-  const filter = createPreloadFilter(path);
-
-  let replaceAlias: ReplaceAlias = (path) => path;
 
   return {
     name: 'vite:utools-preload',
     config: (c) => ({
       base: isUndef(c.base) || c.base === '/' ? '' : c.base,
     }),
-    configResolved: function (c) {
-      replaceAlias = createReplaceAlias(c.resolve.alias);
+    configResolved: function(c) {
 
       const log = c.logger.info
       c.logger.info = (info) => {
-        info = info.includes(O_MODE) ? info.replace(O_MODE, "uTools bundle") : info
+        info = info.includes(SSR_MODE) ? info.replace(SSR_MODE, "uTools bundle") : info
         if (info.includes('Local')) {
           buildPluginJson(c, localUrl = getLocalUrl(info))
         }
@@ -62,7 +50,6 @@ export const preloadPlugin = (options: RequiredOptions): Plugin => {
         getPluginJSON(options.configFile, true)
         buildPluginJson(server.config, localUrl)
       }
-      // if (file.includes(dirname(options.configFile))) await viteBuild()
     },
   };
 };
@@ -72,27 +59,27 @@ export const apiExternalPlugin = (options: RequiredOptions): Plugin => {
   let config: ResolvedConfig
 
   return {
-    name: 'vite:utools-api',
+    name: 'vite:utools-bundle',
     configResolved: (c) => {
       config = c
     },
     generateBundle(_opts, bundle) {
-      if (!bundle[NAME]) return
+      if (!bundle[FILE_NAME]) return
       // @ts-expect-error it's OutputChunk
-      const exportsKeys = bundle[NAME].exports
+      const exportsKeys = bundle[FILE_NAME].exports
       // @ts-expect-error it's OutputChunk
-      const preoloadCode = bundle[NAME].code
-      delete bundle[NAME]
+      const preoloadCode = bundle[FILE_NAME].code
+      delete bundle[FILE_NAME]
 
       Promise.resolve().then(() => {
         const scode = new MagicString(preoloadCode);
         // clear needless code
         scode.update(13, 14, name ? `\nwindow['${name}'] = Object.create(null);\n` : '')
 
-        // remove externals `require('xxx')`
-        external.forEach((mod) => {
-          scode.replace(new RegExp(escapeRegexStr(`require('${mod}')`)), 'void 0')
-        })
+        // remove external `require('xxx')`
+        // external.forEach((mod) => {
+        //   scode.replace(new RegExp(escapeRegexStr(`require('${mod}')`)), 'void 0')
+        // })
 
         // inject into global window
         exportsKeys.forEach((key: string) => {
@@ -115,12 +102,13 @@ export const apiExternalPlugin = (options: RequiredOptions): Plugin => {
       })
     },
     closeBundle() {
-      if (config.mode === BUILD_UTOOLS_MODE) return;
+      if (config.mode === UTOOLS_BUILD_MODE) return;
       buildPreload(options);
     }
   };
 };
 
+/** 构建 upx 文件 */
 export const buildUpxPlugin = (options: RequiredOptions): Plugin => {
   let config: ResolvedConfig;
 
@@ -131,7 +119,7 @@ export const buildUpxPlugin = (options: RequiredOptions): Plugin => {
       config = c;
     },
     closeBundle: async () => {
-      if (config.mode === BUILD_UTOOLS_MODE && config.isProduction) {
+      if (config.mode === UTOOLS_BUILD_MODE && config.isProduction) {
         buildPluginJson(config, localUrl)
         if (!options.configFile || !options.upx) return;
         await buildUpx(config.build.outDir, options, config.logger);

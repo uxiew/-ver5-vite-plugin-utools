@@ -1,4 +1,5 @@
 // code from https://github.com/uTools-Labs/utools-api-types/blob/main/utools.api.d.ts
+/// <reference types="./electron.d.ts" />
 
 interface UBrowser {
   /**

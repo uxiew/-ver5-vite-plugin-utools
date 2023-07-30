@@ -4,8 +4,8 @@
 
 import { existsSync, mkdirSync, writeFileSync, copyFile } from 'node:fs';
 import { basename, resolve } from 'node:path';
-import { build, InlineConfig, ResolvedConfig, ViteDevServer } from 'vite';
-import { BUILD_UTOOLS_MODE } from './constant';
+import { build, InlineConfig, ResolvedConfig } from 'vite';
+import { UTOOLS_BUILD_MODE } from './constant';
 import type { RequiredOptions } from './options';
 import { getPluginJSON } from './utils';
 
@@ -20,17 +20,13 @@ export const getDistPath = (config: ResolvedConfig, fileName = '') => {
 export const buildConfig = (options: RequiredOptions): InlineConfig => {
 
   const { preload: { watch, name, minify }, external } = options;
-
-
   const path = getPluginJSON().preload
+  external.unshift('electron')
 
   return {
-    mode: BUILD_UTOOLS_MODE,
+    mode: UTOOLS_BUILD_MODE,
     ssr: {
-      format: "cjs",
       external,
-    },
-    resolve: {
     },
     plugins: [
       // viteStaticCopy({
@@ -55,6 +51,7 @@ export const buildConfig = (options: RequiredOptions): InlineConfig => {
         external,
         input: { preload: path },
         output: {
+          format: 'cjs',
           entryFileNames: '[name].js' // '[name].cjs'
         }
       },
@@ -89,5 +86,3 @@ export function buildPluginJson(config: ResolvedConfig, localUrl?: string) {
 
   copyFilesByPluginJson(config)
 }
-
-

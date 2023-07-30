@@ -1,6 +1,6 @@
 # @ver5/vite-plugin-utools
 
-<a href="http://www.u.tools/">Utools</a> for Vite
+[Utools](https://u.tools/docs/developer/preload.html) for Vite
 
 - 支持 preload.js 模块化
 - 支持 uTools api 模块化
@@ -34,7 +34,7 @@ export default {
       // plugin.json 路径
       configFile: "./utools/plugin.json",
       // 不需要打包的库
-      external: ["uTools"],
+      external: ["electron"],
       // preload 相关配置
       preload: {
         // 热更新
@@ -96,17 +96,6 @@ window.preload.readConfig = readConfig
 console.log(readConfig());
 ```
 
-## uTools api 支持 ESM
-
-```js
-import { onPluginReady, getUser } from "uTools";
-
-onPluginReady(() => {
-  console.log("Ready");
-  console.log(getUser());
-});
-```
-
 # upx 打包
 
 插件的 `plugin.json` 文件必须项
@@ -142,14 +131,15 @@ onPluginReady(() => {
 
 基本上有两个作用：
 
-1. 自动配置 utools api 的类型声明（使用官方提供的 utools-api-types 类型文件）
-2. 生成相应的 typescript 类型
+1. 自动配置 utools api 的类型声明
+2. 自动配置 electron 的类型声明
+3. 生成相应的 typescript 类型
 
-> 如果不生效，请尝试 utools 的类型声明添加到`tsconfig.json`的`include`中，类似`"types": ["utools-api-types"]`，以便生效！
+> 如果不生效，请尝试`preload.d.ts`的类型声明添加到`tsconfig.json`的`include`中，以便生效！
 
 ## external
 
-默认值：`utools-api-types`,
+默认值：`electron`，`electron`总是会被排除掉。
 
 对于不想打包的包，可以先`external`排除掉，例如`external: ['tiktoken']`,，然后通过 [vite-plugin-static-copy](https://github.com/sapphi-red/vite-plugin-static-copy) 复制到目标目录。
 
@@ -199,4 +189,3 @@ onPluginReady(() => {
 
 # 参考
 - https://github.com/13enBi/vite-plugin-utools/
-

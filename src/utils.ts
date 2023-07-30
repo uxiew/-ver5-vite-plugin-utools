@@ -66,7 +66,7 @@ export const getPluginJSON = (path?: string, reload?: boolean) => {
 
 
 /**
- * @description fs异步生产新的文件，与 preload 在同级目录
+ * @description fs 异步生产新的文件，与 preload 在同级目录
  */
 export function buildFile(content: string, filename: string, options: RequiredOptions) {
   if (existsSync(resolvePath(cwd, 'tsconfig.json')) || options.autoType === true) {
