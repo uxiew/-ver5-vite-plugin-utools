@@ -73,7 +73,6 @@ export const buildPlugin = (options: RequiredOptions): Plugin => {
       // @ts-expect-error it's OutputChunk
       const preoloadCode = bundle[FILE_NAME].code
       delete bundle[FILE_NAME]
-      console.log(preoloadCode)
 
       return Promise.resolve().then(() => {
         const scode = new MagicString(preoloadCode);
