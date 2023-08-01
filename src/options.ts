@@ -44,7 +44,7 @@ export type RequiredOptions = NestedRequired<Options>;
 
 const defaultOptions: Options = {
   configFile: '',
-  external: ['utools-api-types'],
+  external: [],
   autoType: false,
   preload: {
     watch: true,

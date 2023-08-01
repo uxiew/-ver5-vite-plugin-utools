@@ -78,7 +78,6 @@ export const fdir = _fdir;
 
 import { readConfig } from "./preload";
 
-console.log(readConfig());
 export { readConfig }
 ```
 
@@ -93,7 +92,6 @@ const { readFileSync } = require("fs");
 
 const readConfig = () => readFileSync("./config.json");
 window.preload.readConfig = readConfig
-console.log(readConfig());
 ```
 
 # upx 打包

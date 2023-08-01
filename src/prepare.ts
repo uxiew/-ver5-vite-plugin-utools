@@ -1,13 +1,11 @@
 
-
-
-
 import { existsSync, mkdirSync, writeFileSync, copyFile } from 'node:fs';
 import { basename, resolve } from 'node:path';
-import { build, InlineConfig, ResolvedConfig } from 'vite';
-import { UTOOLS_BUILD_MODE } from './constant';
+import { build, InlineConfig, ResolvedConfig, transformWithEsbuild } from 'vite';
+import { FILE_NAME, UTOOLS_BUILD_MODE } from './constant';
 import type { RequiredOptions } from './options';
 import { getPluginJSON } from './utils';
+import { createPreloadFilter, NodeBuiltin } from './helper';
 
 /**
  * @description 获取文件在目标目录中的绝对路径
@@ -15,48 +13,40 @@ import { getPluginJSON } from './utils';
 export const getDistPath = (config: ResolvedConfig, fileName = '') => {
   return resolve(config.root, config.build.outDir, fileName)
 }
-
+export const getModuleName = (id: string) => {
+  const lastIndex = id.lastIndexOf('node_modules');
+  if (!~lastIndex) return;
+  return id.slice(lastIndex + 'node_modules/'.length).match(/^(\S+?)\//)?.[1];
+};
 
 export const buildConfig = (options: RequiredOptions): InlineConfig => {
 
   const { preload: { watch, name, minify }, external } = options;
   const path = getPluginJSON().preload
   external.unshift('electron')
+  const filter = createPreloadFilter(path)
 
   return {
     mode: UTOOLS_BUILD_MODE,
-    ssr: {
-      external,
-    },
-    plugins: [
-      // viteStaticCopy({
-      //   targets: [
-      //     {
-      //       // src: 'node_modules/@dqbd/tiktoken/dist/bundler/',
-      //       src: './utools/preload/_tiktoken/_tiktoken_bg.wasm',
-      //       dest: '.'
-      //     }
-      //   ]
-      // })
-    ],
-    optimizeDeps: { exclude: external },
     build: {
-      // @ts-ignore
-      watch,
+      minify,
       emptyOutDir: false,
-      ssr: true,
-      target: `esnext`,
-      minify, // process.env.MODE !== 'development',
+      lib: {
+        entry: path,
+        formats: ["cjs"],
+      },
       rollupOptions: {
-        external,
-        input: { preload: path },
+        external: [...NodeBuiltin, ...external],
+        input: path,
         output: {
           format: 'cjs',
-          entryFileNames: '[name].js' // '[name].cjs'
-        }
+          entryFileNames: FILE_NAME,
+          inlineDynamicImports: false,
+          chunkFileNames: 'node_modules/[name].js',
+          manualChunks: (id) => (filter(id) ? 'preload' : getModuleName(id) || 'lib'),
+        },
       },
-      reportCompressedSize: false
-    }
+    },
   }
 }
 

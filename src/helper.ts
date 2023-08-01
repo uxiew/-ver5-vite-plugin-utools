@@ -50,7 +50,8 @@ export const isUndef = (val: unknown): val is undefined | null => (val === void 
 
 export const isString = (val: unknown): val is string => typeof val === 'string';
 
-export const joinVarName = (varName: string, prop: string) => `${varName}['${prop}']`;
+/** 挂在到 window */
+export const joinWindowName = (varName: string, prop: string) => `window.${varName}.${prop}`;
 
 export const replaceByTemplate = <T>(path: NodePath<T>, template: string) =>
   path.replaceWithMultiple(genStatements(template));

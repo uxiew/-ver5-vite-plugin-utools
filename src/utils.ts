@@ -1,11 +1,18 @@
 import { readFileSync, existsSync, writeFileSync } from 'node:fs';
 import { basename, dirname, isAbsolute, resolve, resolve as resolvePath } from 'node:path';
-
+import fs from 'fs-extra';
 import colors from 'picocolors';
 import { normalizePath } from 'vite';
-
 import { cwd } from './helper';
 import type { PluginJSON, RequiredOptions } from './options';
+
+
+// 处理 pnpm 包
+const hasPnpm = fs.existsSync(resolve(process.cwd(), "node_modules", ".pnpm"));
+// const fixPkgPath = (pkgName: string) => {
+//   if (/\//.test(pkgName)) return
+// }
+
 
 const requiredKeys = [
   'name',
@@ -20,11 +27,17 @@ const requiredKeys = [
 
 const DOC_URL = 'https://www.u.tools/docs/developer/config.html#基本配置';
 
+
+export function loadPkg(dep = false): string[] | object {
+  const pkg = JSON.parse(readFileSync(resolvePath(cwd, 'package.json'), 'utf8'))
+  return dep ? [...Object.keys(pkg["devDependencies"]), ...Object.keys(pkg["dependencies"])] : pkg
+}
+
 let pluginContext: Required<PluginJSON>
 
 const validatePluginJson = (options: PluginJSON) => {
   if (!pluginContext.preload) console.warn("no preload file required")
-  const pkg = JSON.parse(readFileSync(resolvePath(cwd, 'package.json'), 'utf8'))
+  const pkg = loadPkg()
 
   requiredKeys.forEach((key) => {
     if (!options[key]) {

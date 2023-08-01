@@ -5,19 +5,22 @@ import MagicString from 'magic-string';
 import buildUpx from './buildUpx';
 import { FILE_NAME, SSR_MODE, UTOOLS_BUILD_MODE } from './constant';
 import {
-  createPreloadFilter,
   getLocalUrl,
   isUndef,
 } from './helper';
 import { RequiredOptions } from './options';
 import { buildPluginJson, buildPreload, getDistPath } from './prepare';
-import { buildFile, generateTypes, getPluginJSON } from './utils';
+import {
+  buildFile,
+  // copyModules,
+  generateTypes, getPluginJSON, loadPkg
+} from './utils';
 
 let localUrl = ''
-export const preloadPlugin = (options: RequiredOptions): Plugin => {
+export const devPlugin = (options: RequiredOptions): Plugin => {
   if (!options.configFile)
     return {
-      name: 'vite:utools-preload',
+      name: 'vite:utools-dev',
     };
 
   const { preload: { name } } = options;
@@ -25,12 +28,11 @@ export const preloadPlugin = (options: RequiredOptions): Plugin => {
   const path = getPluginJSON().preload || ''
 
   return {
-    name: 'vite:utools-preload',
+    name: 'vite:utools-dev',
     config: (c) => ({
       base: isUndef(c.base) || c.base === '/' ? '' : c.base,
     }),
     configResolved: function(c) {
-
       const log = c.logger.info
       c.logger.info = (info) => {
         info = info.includes(SSR_MODE) ? info.replace(SSR_MODE, "uTools bundle") : info
@@ -50,13 +52,14 @@ export const preloadPlugin = (options: RequiredOptions): Plugin => {
         getPluginJSON(options.configFile, true)
         buildPluginJson(server.config, localUrl)
       }
-    },
+    }
   };
 };
 
-export const apiExternalPlugin = (options: RequiredOptions): Plugin => {
+export const buildPlugin = (options: RequiredOptions): Plugin => {
   const { preload: { name, onGenerate }, external } = options
   let config: ResolvedConfig
+  const dependencies = loadPkg(true) as string[]
 
   return {
     name: 'vite:utools-bundle',
@@ -70,20 +73,22 @@ export const apiExternalPlugin = (options: RequiredOptions): Plugin => {
       // @ts-expect-error it's OutputChunk
       const preoloadCode = bundle[FILE_NAME].code
       delete bundle[FILE_NAME]
+      console.log(preoloadCode)
 
-      Promise.resolve().then(() => {
+      return Promise.resolve().then(() => {
         const scode = new MagicString(preoloadCode);
         // clear needless code
-        scode.update(13, 14, name ? `\nwindow['${name}'] = Object.create(null);\n` : '')
+        /* 'use strict'; 's length */
+        scode.update(12, 13, name ? `;\nwindow['${name}'] = Object.create(null);\n` : '')
 
         // remove external `require('xxx')`
-        // external.forEach((mod) => {
-        //   scode.replace(new RegExp(escapeRegexStr(`require('${mod}')`)), 'void 0')
-        // })
+        external.forEach((mod) => {
+          scode.replace(new RegExp(escapeRegexStr(`require('${mod}')`)), 'void 0')
+        })
 
         // inject into global window
         exportsKeys.forEach((key: string) => {
-          const reg = new RegExp(`^exports.${key}`, 'mg')
+          const reg = new RegExp(`exports.${key}`, 'mg')
           scode.replaceAll(reg, name ? `window['${name}'].${key}` : `window['${key}']`)
           scode.replaceAll(`defineProperty(exports, '${key}'`, `defineProperty(${name || 'window'}, '${key}'`)
         });
@@ -100,6 +105,7 @@ export const apiExternalPlugin = (options: RequiredOptions): Plugin => {
           source
         })
       })
+
     },
     closeBundle() {
       if (config.mode === UTOOLS_BUILD_MODE) return;
