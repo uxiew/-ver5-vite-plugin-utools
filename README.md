@@ -64,19 +64,18 @@ export const clearClipboard = () => window.electron.clipboard.clear()
 
 假设 preload 入口文件是`index.ts`，并且配置了 preload 的`name: 'preload'`
 ```js
-// preload.ts
+// index.ts
 import { readFileSync } from "fs";
 
 // 所有需要挂载到`window`上的函数或其他，都需要导出使用（记住：只能在入口文件中导出！）
 export const hello = () => window.utools.showNotification("你好👋！")
 export const clearClipboard = () => window.electron.clipboard.clear()
-export const read = () => readFileSync("./plugin.json");
+export const readPlugin = () => readFileSync("./plugin.json");
 ```
 
-最终转换为：
+最终转换为`preload.js`：
 
 ```js
-// preload.js
 "use strict";
 window['preload'] = Object.create(null);
 
@@ -84,7 +83,7 @@ const { readFileSync } = require("fs");
 
 window['preload'].hello = window.utools.showNotification("你好👋！")
 window['preload'].clearClipboard = () => window.electron.clipboard.clear()
-window['preload'].readConfig = () => readFileSync("./config.json");
+window['preload'].readPlugin = () => readFileSync("./plugin.json");
 ```
 
 当然了也支持导入其他文件，和第三方 node 模块。
@@ -100,7 +99,6 @@ dist/preload.js                 2.35 kB
 dist/node_modules/lib.js       53.28 kB │ gzip: 12.22 kB
 dist/node_modules/auth.js   53.71 kB │ gzip: 13.11 kB
 dist/node_modules/@xmldom.js  122.16 kB │ gzip: 30.23 kB
-dist/node_modules/vue.js  381.48 kB │ gzip: 56.48 kB
 ```
 
 启动项目后，生成的`dist`文件夹中就会包括所需的开发文件了，在“uTools 开发者工具”中指向目标目录中的`plugin.json`即可！
@@ -116,7 +114,7 @@ dist/node_modules/vue.js  381.48 kB │ gzip: 56.48 kB
 "version": "0.0.1",
 "description": "demo",
 "author": "chandlerVer5",
-"homepage": "https://github.com/13enbi",
+"homepage": "https://github.com/chandlerVer5",
 "logo": "logo.png",
 "features":[]
 ```
