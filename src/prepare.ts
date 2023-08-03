@@ -13,7 +13,7 @@ import { createPreloadFilter, NodeBuiltin } from './helper';
 export const getDistPath = (config: ResolvedConfig, fileName = '') => {
   return resolve(config.root, config.build.outDir, fileName)
 }
-export const getModuleName = (id: string) => {
+export const getNodeModuleName = (id: string) => {
   const lastIndex = id.lastIndexOf('node_modules');
   if (!~lastIndex) return;
   return id.slice(lastIndex + 'node_modules/'.length).match(/^(\S+?)\//)?.[1];
@@ -43,7 +43,7 @@ export const buildConfig = (options: RequiredOptions): InlineConfig => {
           entryFileNames: FILE_NAME,
           inlineDynamicImports: false,
           chunkFileNames: 'node_modules/[name].js',
-          manualChunks: (id) => (filter(id) ? 'preload' : getModuleName(id) || 'lib'),
+          manualChunks: (id) => (filter(id) ? 'preload' : getNodeModuleName(id) || 'lib'),
         },
       },
     },

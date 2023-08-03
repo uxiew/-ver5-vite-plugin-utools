@@ -23,9 +23,7 @@ export const devPlugin = (options: RequiredOptions): Plugin => {
       name: 'vite:utools-dev',
     };
 
-  const { preload: { name } } = options;
-
-  const path = getPluginJSON().preload || ''
+  // const path = getPluginJSON().preload || ''
 
   return {
     name: 'vite:utools-dev',
@@ -59,7 +57,6 @@ export const devPlugin = (options: RequiredOptions): Plugin => {
 export const buildPlugin = (options: RequiredOptions): Plugin => {
   const { preload: { name, onGenerate }, external } = options
   let config: ResolvedConfig
-  const dependencies = loadPkg(true) as string[]
 
   return {
     name: 'vite:utools-bundle',
@@ -77,8 +74,9 @@ export const buildPlugin = (options: RequiredOptions): Plugin => {
       return Promise.resolve().then(() => {
         const scode = new MagicString(preoloadCode);
         // clear needless code
-        /* 'use strict'; 's length */
-        scode.update(12, 13, name ? `;\nwindow['${name}'] = Object.create(null);\n` : '')
+        /* 'use strict'; 's length  &&  add const electron = require('electorn')*/
+        scode.update(12, 13, name ? `;\nwindow['${name}'] = Object.create(null);\nconst electron = require('electron')\n` : '')
+        scode.replaceAll("window.electron", "electron")
 
         // remove external `require('xxx')`
         external.forEach((mod) => {

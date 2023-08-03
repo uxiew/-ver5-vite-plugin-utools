@@ -228,6 +228,10 @@ interface DbReturn {
 
 interface UToolsApi {
   /**
+   * 每当插件准备就绪
+   */
+  onPluginReady(callback: () => void): void;
+  /**
    * 每当插件从后台进入到前台时，uTools将会主动调用这个方法
    */
   onPluginEnter(callback: (action: { code: string, type: string, payload: any }) => void): void;
@@ -262,7 +266,7 @@ interface UToolsApi {
    * @param placeholder 占位符， 默认为空
    * @param isFocus 是否获得焦点，默认为 true
    */
-  setSubInput(onChange: (text: string) => void, placeholder?: string, isFocus?: boolean): boolean;
+  setSubInput(onChange: (value: { text: string }) => void, placeholder?: string, isFocus?: boolean): boolean;
   /**
    * 移除子输入框
    */
