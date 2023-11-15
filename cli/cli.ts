@@ -1,4 +1,4 @@
 #!/usr/bin/env node
-import { buildTemplates } from './template'
+import build from './template'
 
-buildTemplates()
+build()

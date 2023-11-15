@@ -4,10 +4,10 @@ import { resolve } from 'node:path';
 /**
 * 没有指定 --dir 参数，默认创建 utools 目录
 */
-export function buildTemplates() {
-  let utoolsDir = 'utools'
-  if (process.argv.slice(2)[0] === "--dir")
-    utoolsDir = resolve(process.cwd(), process.argv.slice(3)[0])
+export default function buildTemplates() {
+  const utoolsDir = (getInput(2) === "--dir") ? resolve(process.cwd(), getInput(3)) : 'utools';
+
+  console.log(utoolsDir)
   // const viteConfigFile = resolve(process.cwd(), 'vite.config') + resolve(process.cwd(), 'tsconfig.json') ? '.ts' : '.js'
   if (!existsSync(utoolsDir)) {
     mkdirSync(utoolsDir, { recursive: false })
@@ -20,6 +20,10 @@ export function buildTemplates() {
       });
     })
   } else {
-    console.log(`${process.argv.slice(3)[0]} dir already existed, skipped...`);
+    console.log(`${utoolsDir} dir in the current root directory already existed, skipped...`);
   }
+}
+
+function getInput(index = 0) {
+  return process.argv.slice(index)[0]
 }

@@ -31,7 +31,9 @@ const generateOutName = (temp: string, pluginOptions: PluginJSON) =>
     return isString(value) ? value : str;
   });
 
-// 准备输出目录
+/**
+* upx 输出目录
+*/
 const prepareOutDir = async (buildOptions: NestedRequired<BuildUpxOptions>, pluginOptions: PluginJSON) => {
   await mkdir(buildOptions.outDir, { recursive: true });
 

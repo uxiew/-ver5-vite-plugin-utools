@@ -8,11 +8,13 @@
 - 支持 uTools api 模块化
 
 # 安装
+
 ```bash
 npm i @ver5/vite-plugin-utools -D
 ```
 
 # 配置
+
 在 `vite.config.js` 中添加配置
 
 ```js
@@ -43,33 +45,44 @@ export default {
 };
 ```
 
-##  准备开发
+## 准备开发
 
 如果你是一个全新的 vite 的项目中可以先运行，那么可以先运行下面的命令：
+
 ```sh
 npx utools
 ```
-会在当前根目录生成 utools 文件夹和模版文件。当然了你也可以不运行该命令，直接进行参考上面的配置，进行 utools 开发了。
+
+会在项目根目录生成名为 utools 文件夹和模版文件。当然了你也可以不运行该命令，直接进行参考上面的配置，进行 utools 开发了。
+
+指定生成的文件夹名
+
+```sh
+npx utools --dir utools-dir-name
+```
 
 ### preload 文件支持 ts 和 npm 库
 
 > 注意 ⚠️：需要在`configFile`的`plugin.json`文件中指定 preload 入口文件，假如你的`preload:'./plugin/index.ts'`表示相对当前`plugin.json`所在路径，之后会自动转换。
 
 ### 默认支持部分可用 electron 模块
-直接使用 window.electron 即可。（记住：utools  插件只支持部分 electorn 模块功能！）
+
+直接使用 window.electron 即可。（记住：utools 只支持部分 electorn 模块功能！）
+
 ```
 export const hello = () => window.utools.showNotification("你好👋！")
 export const clearClipboard = () => window.electron.clipboard.clear()
 ```
 
 假设 preload 入口文件是`index.ts`，并且配置了 preload 的`name: 'preload'`
+
 ```js
 // index.ts
 import { readFileSync } from "fs";
 
 // 所有需要挂载到`window`上的函数或其他，都需要导出使用（记住：只能在入口文件中导出！）
-export const hello = () => window.utools.showNotification("你好👋！")
-export const clearClipboard = () => window.electron.clipboard.clear()
+export const hello = () => window.utools.showNotification("你好👋！");
+export const clearClipboard = () => window.electron.clipboard.clear();
 export const readPlugin = () => readFileSync("./plugin.json");
 ```
 
@@ -77,21 +90,23 @@ export const readPlugin = () => readFileSync("./plugin.json");
 
 ```js
 "use strict";
-window['preload'] = Object.create(null);
+window["preload"] = Object.create(null);
 
 const { readFileSync } = require("fs");
 
-window['preload'].hello = window.utools.showNotification("你好👋！")
-window['preload'].clearClipboard = () => window.electron.clipboard.clear()
-window['preload'].readPlugin = () => readFileSync("./plugin.json");
+window["preload"].hello = window.utools.showNotification("你好👋！");
+window["preload"].clearClipboard = () => window.electron.clipboard.clear();
+window["preload"].readPlugin = () => readFileSync("./plugin.json");
 ```
 
 当然了也支持导入其他文件，和第三方 node 模块。
 
 ### 支持 preload 第三方 node 模块分割
+
 保持`preload.js`的简洁。
 
 运行`npm run dev`显示示例：
+
 ```sh
 vite v4.1.4 building for utools-build-mode...
 ✓ 32 modules transformed.
@@ -134,7 +149,7 @@ dist/node_modules/@xmldom.js  122.16 kB │ gzip: 30.23 kB
 
 默认值：`false`
 
-如果当前项目属于 typescript 项目，或者 设置`autoType:true`会自动 s生成名为`preload.d.ts`的类型文件（相对于`configFile`中的`preload`路径）。
+如果当前项目属于 typescript 项目，或者 设置`autoType:true`会自动生成名为`preload.d.ts`的类型文件（相对于`configFile`中的`preload`路径）。
 
 基本上有两个作用：
 
@@ -193,6 +208,6 @@ dist/node_modules/@xmldom.js  122.16 kB │ gzip: 30.23 kB
 - [x] 生成 ts 类型
 - [ ] preload 自动 reload
 
-
 # 参考
+
 - https://github.com/13enBi/vite-plugin-utools/

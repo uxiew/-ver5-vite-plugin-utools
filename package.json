@@ -4,9 +4,11 @@
   "description": "Utools for Vite by ChandlerVer5",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
   "exports": {
     ".": {
       "import": "./dist/index.mjs",
+      "types": "./dist/index.d.ts",
       "require": "./dist/index.js"
     },
     "./utools": {
@@ -16,7 +18,6 @@
   "bin": {
     "utools": "./dist/cli.js"
   },
-  "types": "./dist/index.d.ts",
   "files": [
     "dist",
     "utools.d.ts",

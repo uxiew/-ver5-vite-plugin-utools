@@ -20,13 +20,13 @@ let localUrl = ''
 export const devPlugin = (options: RequiredOptions): Plugin => {
   if (!options.configFile)
     return {
-      name: 'vite:utools-dev',
+      name: 'vite:@ver5/utools-dev',
     };
 
   // const path = getPluginJSON().preload || ''
 
   return {
-    name: 'vite:utools-dev',
+    name: 'vite:@ver5/utools-dev',
     config: (c) => ({
       base: isUndef(c.base) || c.base === '/' ? '' : c.base,
     }),
@@ -59,7 +59,7 @@ export const buildPlugin = (options: RequiredOptions): Plugin => {
   let config: ResolvedConfig
 
   return {
-    name: 'vite:utools-bundle',
+    name: 'vite:@ver5/utools-bundle',
     configResolved: (c) => {
       config = c
     },

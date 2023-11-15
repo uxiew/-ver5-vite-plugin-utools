@@ -2,18 +2,14 @@
   "main": "index.html",
   "logo": "logo.png",
   "preload": "preload.ts",
-  "author": "",
-  "homepage": "",
+  "author": "need changeed",
+  "homepage": "need changeed",
   "description": "uTools template 😄 created by @ver5/vite-plugin-utools",
   "features": [
     {
       "code": "dev",
-      "explain": "安全、简洁的 demo",
-      "cmds": [
-        "dev",
-        "upx",
-        "xxx"
-      ]
+      "explain": "template demo",
+      "cmds": ["dev", "upx", "xxx"]
     }
   ]
 }
