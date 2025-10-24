@@ -21,11 +21,21 @@ export default defineConfig((env) => {
         external: ['vite', 'vite-plugin-inspect'],
         preload: {
           watch: true,
-          name: 'res',
+          name: 'services', // 更改为 services 以匹配 preload.ts
           minify: false,
         },
         upx: {
           outName: '[pluginName]_[version].upx',
+        },
+        mock: {
+          enabled: true,
+          showDevIndicator: true,
+          mockData: {
+            runtimes: {
+              node: 'v20.0.0 (Playground Mock)',
+              python: 'Python 3.12.0 (Playground Mock)'
+            }
+          }
         },
       }),
     ],

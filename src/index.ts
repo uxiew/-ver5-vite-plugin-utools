@@ -1,16 +1,57 @@
 import { Plugin } from 'vite';
 
-import { resolveOptions } from './options';
-import { buildPlugin, buildUpxPlugin, devPlugin } from './plugins';
+import { OptionsResolver } from './options';
+import { buildPlugin, buildUpxsPlugin, devPlugin } from './plugins';
+import { preloadMockPlugin } from './preload_mock';
 import type { Options } from './options';
 
 export const viteUtoolsPlugin = (options: Options): Plugin[] => {
-  const requiredOptions = resolveOptions(options);
+  const { resolvedOptions } = new OptionsResolver(options);
   return [
-    devPlugin(requiredOptions),
-    buildPlugin(requiredOptions),
-    buildUpxPlugin(requiredOptions),
+    preloadMockPlugin(resolvedOptions),
+    devPlugin(resolvedOptions),
+    buildPlugin(resolvedOptions),
+    buildUpxsPlugin(resolvedOptions),
   ];
 };
 
 export default viteUtoolsPlugin;
+
+// Export types for TypeScript users
+export type { Options, MockOptions, PreloadOptions, UpxsOptions } from './options';
+
+// Export Mock configuration types and manager
+export type {
+  MockConfig,
+  MockDataConfig,
+  UtoolsApiMockConfig,
+  PreloadApiMockConfig
+} from './mockConfigManager';
+export {
+  MockConfigManager,
+  createMockConfigManager,
+  getMockConfig
+} from './mockConfigManager';
+
+// Export analyzer functions for testing and external use
+export { analyzePreloadFile } from './preload_analyzer';
+
+// Export complete uTools API Mock implementation
+export {
+  MockUToolsApi,
+  MockDisplay,
+  MockDbStorage,
+  MockDatabase,
+  MockUBrowser
+} from './utoolsApiMockImpl';
+
+export {
+  defineMockConfig,
+  definePreloadMocks,
+  defineUtoolsMocks,
+  applyMockOverrides
+} from './mockHelpers';
+
+// Export Mock file manager
+export { MockFileManager } from './mockFileManager';
+export type { MockManifest, PreloadSignature } from './types';

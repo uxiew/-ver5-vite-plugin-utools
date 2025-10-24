@@ -1,5 +1,52 @@
 // code from https://github.com/uTools-Labs/utools-api-types/blob/main/utools.api.d.ts
-/// <reference types="./electron.d.ts" />
+/// <reference path="ubw.d.ts"/>
+/// <reference path="electron.d.ts"/>
+
+interface UtoolsAiModel {
+  id: string;
+  label: string;
+  description: string;
+  icon: string;
+  cost: number;
+}
+interface UtoolsAiResult<T> extends Promise<T> {
+  abort(): void;
+}
+
+interface UtoolsAiMessage {
+  role: "system" | "user" | "assistant";
+  content?: string;
+  reasoning_content?: string;
+}
+
+interface UtoolsAiTool {
+  type: "function";
+  function?: {
+    name: string;
+    description: string;
+    parameters: {
+      type: "object";
+      properties: Record<string, any>;
+    };
+    required?: string[];
+  };
+}
+
+interface UtoolsAiOption {
+  model?: string;
+  messages: UtoolsAiMessage[];
+  tools?: UtoolsAiTool[];
+}
+
+interface CookieFilter {
+  url?: string;
+  name?: string;
+  domain?: string;
+  path?: string;
+  secure?: boolean;
+  session?: boolean;
+  httpOnly?: boolean;
+}
 
 interface UBrowser {
   /**
@@ -32,7 +79,7 @@ interface UBrowser {
   /**
    * 键盘按键
    */
-  press(key: string, ...modifier: ('control' | 'ctrl' | 'shift' | 'meta' | 'alt' | 'command' | 'cmd')[]): this;
+  press(key: string, ...modifier: ('ctrl' | 'shift' | 'alt' | 'meta')[]): this;
   /**
    * 粘贴
    * @param text 如果是图片的base64编码字符串，粘贴图片，为空只执行粘贴动作
@@ -45,6 +92,11 @@ interface UBrowser {
    */
   screenshot(arg: string | { x: number, y: number, width: number, height: number }, savePath?: string): this;
   /**
+   * 转为 markdown 文本
+   * @param selector css 选择器或者XPATH
+   */
+  markdown(selector?: string): this;
+  /**
    * 保存为PDF
    * @param options 选项
    * @param savePath PDF保存路径，可以是文件夹 或 .pdf文件完全路径, 默认保存临时目录
@@ -53,12 +105,17 @@ interface UBrowser {
   /**
    * 模拟设备
    */
-  device(arg: ('iPhone 11' | 'iPhone X' | 'iPad' | 'iPhone 6/7/8 Plus' | 'iPhone 6/7/8' | 'iPhone 5/SE' | 'HUAWEI Mate10' | 'HUAWEI Mate20' | 'HUAWEI Mate30' | 'HUAWEI Mate30 Pro') | { size: { width: number, height: number }, useragent: string }): this;
+  device(arg: { size: { width: number, height: number }, useragent: string }): this;
   /**
-   * 获取 cookie
-   * @param name 为空获取全部cookie
+   * 在当前 url 根据名称获取 cookie
+   * @param name 为空获取当前 url 全部 cookie
    */
   cookies(name?: string): this;
+  /**
+   * 根据条件获取 ubrowser cookies
+   * @param filter 条件过滤对象
+   */
+  cookies(filter: CookieFilter): this;
   /**
    * 设置Cookie
    */
@@ -85,7 +142,7 @@ interface UBrowser {
    * @param func 在目标网页中执行
    * @param params 传到 func 中的参数
    */
-  evaluate(func: (...params: any[]) => any, ...params: any[]): this;
+  evaluate<T extends any[]>(func: (...params: T) => any, ...params: T): this;
   /**
    * 等待时间
    * @param ms 毫秒
@@ -103,9 +160,9 @@ interface UBrowser {
    * @param timeout 超时 默认60000 ms(60秒)
    * @param params 传到 func 中的参数
    */
-  wait(func: (...params: any[]) => boolean, timeout?: number, ...params: any[]): this;
+  wait<T extends any[]>(func: (...params: T) => boolean, timeout?: number, ...params: T): this;
   /**
-   * 当元素存在时执行直到碰到 end
+   * 当元素存在时执行，直到碰到 end
    * @param selector DOM元素
    */
   when(selector: string): this;
@@ -114,7 +171,7 @@ interface UBrowser {
    * @param func 执行的JS函数
    * @param params 传到 func 中的参数
    */
-  when(func: (...params: any[]) => boolean, ...params: any[]): this;
+  when<T extends any[]>(func: (...params: T) => boolean, ...params: T): this;
   /**
    * 配合 when 使用
    */
@@ -162,36 +219,53 @@ interface UBrowser {
    */
   scroll(x: number, y: number): this;
   /**
-   * 运行在闲置的 ubrowser 上
-   * @param ubrowserId utools.getIdleUBrowsers() 中获得
+   * 下载文件
    */
-  run(ubrowserId: number): Promise<any[]>;
+  download(url: string, savePath?: string): this;
+  /**
+   * 下载文件
+   */
+  download(func: (...params: any[]) => string, savePath: string | null, ...params: any[]): this;
   /**
    * 启动一个 ubrowser 运行
    * 当运行结束后，窗口如果为隐藏状态将自动销毁窗口
    * @param options
    */
-  run(options: {
-    show?: boolean,
-    width?: number,
-    height?: number,
-    x?: number,
-    y?: number,
-    center?: boolean,
-    minWidth?: number,
-    minHeight?: number,
-    maxWidth?: number,
-    maxHeight?: number,
-    resizable?: boolean,
-    movable?: boolean,
-    minimizable?: boolean,
-    maximizable?: boolean,
-    alwaysOnTop?: boolean,
-    fullscreen?: boolean,
-    fullscreenable?: boolean,
-    enableLargerThanScreen?: boolean,
-    opacity?: number
-  }): Promise<any[]>;
+  run<T extends any = any[]>(options: {
+    show?: boolean;
+    width?: number;
+    height?: number;
+    x?: number;
+    y?: number;
+    center?: boolean;
+    minWidth?: number;
+    minHeight?: number;
+    maxWidth?: number;
+    maxHeight?: number;
+    resizable?: boolean;
+    movable?: boolean;
+    minimizable?: boolean;
+    maximizable?: boolean;
+    alwaysOnTop?: boolean;
+    fullscreen?: boolean;
+    fullscreenable?: boolean;
+    enableLargerThanScreen?: boolean;
+    opacity?: number;
+    frame?: boolean;
+    closable?: boolean;
+    focusable?: boolean;
+    skipTaskbar?: boolean;
+    backgroundColor?: string;
+    hasShadow?: boolean;
+    transparent?: boolean;
+    titleBarStyle?: string;
+    thickFrame?: boolean;
+  }): Promise<T>;
+  /**
+   * 运行在闲置的 ubrowser 上
+   * @param ubrowserId 1. run(options) 运行结束后, 当 ubrowser 实例窗口仍然显示时返回 2. utools.getIdleUBrowsers() 中获得
+   */
+  run<T extends any = any[]>(ubrowserId: number): Promise<T>;
 }
 
 interface Display {
@@ -211,11 +285,10 @@ interface Display {
   workAreaSize: { width: number, height: number };
 }
 
-interface DbDoc {
+type DbDoc<T extends {} = Record<string, any>> = {
   _id: string,
   _rev?: string,
-  [key: string]: any
-}
+} & T
 
 interface DbReturn {
   id: string,
@@ -226,15 +299,58 @@ interface DbReturn {
   message?: string
 }
 
+interface PluginFeature {
+  code: string,
+  explain?: string,
+  platform?: ('darwin' | 'win32' | 'linux') | (Array<'darwin' | 'win32' | 'linux'>),
+  icon?: string,
+  cmds: (string | {
+    type: 'img' | 'files' | 'regex' | 'over' | 'window',
+    label: string
+  })[]
+  mainHide?: boolean
+  mainPush?: boolean
+}
+
+type PluginEnterFrom =
+  | 'main'
+  | 'panel'
+  | 'hotkey'
+  | 'redirect'
+
+interface FfmpegRunProgress {
+  bitrate: string;
+  fps: number;
+  frame: number;
+  percent?: number;
+  q: number | string;
+  size: string;
+  speed: string;
+  time: string;
+}
+
+interface FfmpegPromise extends Promise<void> {
+  kill(): void;
+  quit(): void;
+}
+
+interface MainPushResult {
+  icon?: string,
+  text: string,
+  title?: string
+}
+
+type MainPushResultList = MainPushResult[] | Promise<MainPushResult[]>
+
 interface UToolsApi {
   /**
-   * 每当插件准备就绪
+   * 插件应用进入时触发
    */
-  onPluginReady(callback: () => void): void;
+  onPluginEnter<T = any, L = any>(callback: (action: { code: string, type: string, payload: T, option: L, from?: PluginEnterFrom }) => void): void;
   /**
-   * 每当插件从后台进入到前台时，uTools将会主动调用这个方法
-   */
-  onPluginEnter(callback: (action: { code: string, type: string, payload: any }) => void): void;
+  * 向搜索面板推送消息
+  */
+  onMainPush<T = any>(callback: (action: { code: string, type: string, payload: T }) => MainPushResultList, selectCallback: (action: { code: string, type: string, payload: any, option: MainPushResult }) => void): void;
   /**
    * 插件应用隐藏后台或完全退出时触发
    */
@@ -246,7 +362,7 @@ interface UToolsApi {
   /**
    * 插件应用从云端拉取到数据时触发
    */
-  onDbPull(callback: (docs: { _id: string, _rev: string }[]) => void): void;
+  onDbPull<T extends {} = Record<string, any>>(callback: (docs: DbDoc<T>[]) => void): void;
   /**
    * 隐藏主窗口
    * @param isRestorePreWindow 是否焦点回归到前面的活动窗口，默认 true
@@ -266,7 +382,7 @@ interface UToolsApi {
    * @param placeholder 占位符， 默认为空
    * @param isFocus 是否获得焦点，默认为 true
    */
-  setSubInput(onChange: (value: { text: string }) => void, placeholder?: string, isFocus?: boolean): boolean;
+  setSubInput(onChange: (input: { text: string }) => void, placeholder?: string, isFocus?: boolean): boolean;
   /**
    * 移除子输入框
    */
@@ -293,11 +409,19 @@ interface UToolsApi {
    * @param options 参考 https://www.electronjs.org/docs/api/browser-window#new-browserwindowoptions
    * @param callback url 加载完成时的回调
    */
-  createBrowserWindow(url: string, options: { width?: number, height?: number }, callback?: () => void): { id: number, [key: string]: any, webContents: { id: number, [key: string]: any } };
+  createBrowserWindow(url: string, options: BrowserWindow.InitOptions, callback?: () => void): BrowserWindow.WindowInstance;
+  /**
+   * 发送消息到父窗口
+   * **仅在 `createBrowserWindow` 创建的窗口中使用有效**
+   * @param channel 通道名
+   * @param params 发送的数据
+   */
+  sendToParent(channel: string, ...params: any[]): void;
   /**
    * 隐藏插件应用到后台
+   * @param {boolean|undefined} isKill 设置为 `true` 时，会将插件进程杀死
    */
-  outPlugin(): boolean;
+  outPlugin(isKill?: boolean): boolean;
   /**
    * 是否深色模式
    */
@@ -311,12 +435,34 @@ interface UToolsApi {
    */
   fetchUserServerTemporaryToken(): Promise<{ token: string, expiredAt: number }>;
   /**
-   * 打开支付
+   * 是否插件应用的付费用户
+   */
+  isPurchasedUser(): boolean;
+  /**
+   * 打开付费 (软件付费)
+   * @param callback 购买成功触发
+   */
+  openPurchase(options: {
+    /**
+     * 商品 ID，在「开发者工具」插件应用中创建
+     */
+    goodsId: string,
+    /**
+     * 第三方服务生成的订单号(可选)
+     */
+    outOrderId?: string,
+    /**
+     * 第三方服务附加数据，在查询API和支付通知中原样返回，可作为自定义参数使用(可选)
+     */
+    attach?: string
+  }, callback?: () => void): void;
+  /**
+   * 打开支付 (付费)
    * @param callback 支付成功触发
    */
   openPayment(options: {
     /**
-     * 商品ID，在 “uTools 开发者工具” 插件应用中创建
+     * 商品 ID，在「开发者工具」插件应用中创建
      */
     goodsId: string,
     /**
@@ -335,16 +481,7 @@ interface UToolsApi {
   /**
    * 设置插件应用动态功能
    */
-  setFeature(feature: {
-    code: string,
-    explain: string,
-    platform: ('darwin' | 'win32' | 'linux') | (Array<'darwin' | 'win32' | 'linux'>),
-    icon?: string,
-    cmds: (string | {
-      type: 'img' | 'files' | 'regex' | 'over' | 'window',
-      label: string
-    })[]
-  }): boolean;
+  setFeature(feature: PluginFeature): boolean;
   /**
    * 移除插件应用动态功能
    */
@@ -352,20 +489,21 @@ interface UToolsApi {
   /**
    * 获取插件应用动态功能，参数为空获取所有动态功能
    */
-  getFeatures(codes?: string[]): {
-    code: string,
-    explain: string,
-    platform: ('darwin' | 'win32' | 'linux') | (Array<'darwin' | 'win32' | 'linux'>),
-    icon?: string,
-    cmds: string | {
-      type: 'img' | 'files' | 'regex' | 'over' | 'window',
-      label: string
-    }[]
-  }[];
+  getFeatures(codes?: string[]): PluginFeature[];
   /**
    * 插件应用间跳转
    */
-  redirect(label: string, payload: string | { type: 'text' | 'img' | 'files', data: any }): void;
+  redirect(label: string | string[], payload: string | { type: 'text' | 'img' | 'files', data: any }): boolean;
+  /**
+   * 跳转(前往) uTools 设置界面，引导用户配置指令全局快捷键
+   * @param cmdLabel 指令名称
+   * @param autocopy 是否自动复制，默认为 false
+   */
+  redirectHotKeySetting(cmdLabel: string, autocopy?: boolean): void;
+  /**
+   * 跳转(前往) uTools 自定义 AI 模型设置界面，引导用户配置自定义 AI 模型
+   */
+  redirectAiModelsSetting(): void;
   /**
    * 获取闲置的 ubrowser
    */
@@ -381,7 +519,7 @@ interface UToolsApi {
   /**
    * 显示系统通知
    */
-  showNotification(body: string): void;
+  showNotification(body: string, featureName?: string): void;
   /**
    * 弹出文件选择框
    */
@@ -443,6 +581,10 @@ interface UToolsApi {
    */
   getAppVersion(): string;
   /**
+   * 获取软件名称
+   */
+  getAppName(): string;
+  /**
    * 获取路径
    */
   getPath(name: 'home' | 'appData' | 'userData' | 'cache' | 'temp' | 'exe' | 'module' | 'desktop' | 'documents' | 'downloads' | 'music' | 'pictures' | 'videos' | 'logs' | 'pepperFlashSystemPlugin'): string;
@@ -450,6 +592,10 @@ interface UToolsApi {
    * 获取文件图标
    */
   getFileIcon(filePath: string): string;
+  /**
+   * 获取当前窗口类型, 'main' 主窗口 | 'detach' 分离窗口 | 'browser' 由 createBrowserWindow 创建的窗口
+   */
+  getWindowType(): 'main' | 'detach' | 'browser';
   /**
    * 复制文件到剪贴板
    */
@@ -483,6 +629,10 @@ interface UToolsApi {
    */
   shellOpenPath(fullPath: string): void;
   /**
+   * 删除文件到回收站
+   */
+  shellTrashItem(filename: string): Promise<void>;
+  /**
    * 在文件管理器中显示给定的文件
    */
   shellShowItemInFolder(fullPath: string): void;
@@ -495,9 +645,21 @@ interface UToolsApi {
    */
   shellBeep(): void;
   /*
-  * 隐藏主窗口并键入字符串
+  * 键入字符串
   */
   hideMainWindowTypeString(str: string): void;
+  /*
+  * 粘贴文件
+  */
+  hideMainWindowPasteFile(file: string | string[]): void;
+  /*
+  * 粘贴图像
+  */
+  hideMainWindowPasteImage(img: string | Uint8Array): void;
+  /*
+  * 粘贴文本
+  */
+  hideMainWindowPasteText(text: string): void;
   /**
    * 模拟键盘按键
    */
@@ -539,6 +701,22 @@ interface UToolsApi {
    */
   getDisplayMatching(rect: { x: number, y: number, width: number, height: number }): Display;
   /**
+   * 屏幕物理坐标转 DIP 坐标
+   */
+  screenToDipPoint(point: { x: number, y: number }): { x: number, y: number };
+  /**
+   * 屏幕 DIP 坐标转物理坐标
+   */
+  dipToScreenPoint(point: { x: number, y: number }): { x: number, y: number };
+  /**
+   * 屏幕物理区域转 DIP 区域
+   */
+  screenToDipRect(rect: { x: number, y: number, width: number, height: number }): { x: number, y: number, width: number, height: number };
+  /**
+ * 屏幕 DIP 区域转物理区域
+ */
+  dipToScreenRect(rect: { x: number, y: number, width: number, height: number }): { x: number, y: number, width: number, height: number };
+  /**
    * 录屏源
    */
   desktopCaptureSources(options: { types: string[], thumbnailSize?: { width: number, height: number }, fetchWindowIcons?: boolean }): Promise<{ appIcon: {}, display_id: string, id: string, name: string, thumbnail: {} }>;
@@ -567,7 +745,7 @@ interface UToolsApi {
     /**
      * 获取文档
      */
-    get(id: string): DbDoc | null;
+    get<T extends {} = Record<string, any>>(id: string): DbDoc<T> | null;
     /**
      * 删除文档
      */
@@ -579,7 +757,7 @@ interface UToolsApi {
     /**
      * 获取所有文档 可根据文档id前缀查找
      */
-    allDocs(key?: string): DbDoc[];
+    allDocs<T extends {} = Record<string, any>>(key?: string): DbDoc<T>[];
     /**
      * 存储附件到新文档
      * @param docId 文档ID
@@ -659,14 +837,83 @@ interface UToolsApi {
     /**
      * 获取键名对应的值
      */
-    getItem(key: string): any;
+    getItem<T = any>(key: string): T;
     /**
      * 删除键值对(删除文档)
      */
     removeItem(key: string): void;
   };
 
+  dbCryptoStorage: {
+    /**
+     * 键值对加密存储，如果键名存在，则更新其对应的值
+     * @param key 键名(同时为文档ID)
+     * @param value 键值
+     */
+    setItem(key: string, value: any): void;
+    /**
+     * 获取键名对应的值
+     */
+    getItem<T = any>(key: string): T;
+    /**
+     * 删除键值对(删除文档)
+     */
+    removeItem(key: string): void;
+  };
+
+  team: {
+    /**
+     * 获取团队信息
+     */
+    info(): {
+      teamId: string,
+      teamName: string,
+      teamLogo: string,
+      userId: string,
+      userName: string,
+      userAvatar: string
+    };
+    /**
+     * 获取团队版预设键名对应的值
+     */
+    preset<T = any>(key: string): T;
+    /**
+     * 获取团队版预设的所有数据
+     */
+    allPresets(): Promise<{ key: string, value: any }[]>;
+  }
+
   ubrowser: UBrowser;
+
+  /**
+   * 运行 ffmpeg
+   * @param args ffmpeg 命令行参数
+   * @param onProgress 进度回调
+   */
+  runFFmpeg(args: string[], onProgress?: (progress: FfmpegRunProgress) => void): FfmpegPromise;
+
+  /**
+   * 获取所有 AI 模型
+   */
+  allAiModels(): Promise<UtoolsAiModel[]>;
+
+  /**
+   * 流式调用 AI
+   * @param option 选项参数
+   * @param option.model 模型
+   * @param option.messages 消息
+   * @param option.tools 工具集合，使用 function calling 配置
+   * @param streamCallback 流式回调
+   */
+  ai(
+    option: UtoolsAiOption,
+    streamCallback: (chunk: UtoolsAiMessage) => void
+  ): UtoolsAiResult<void>
+  /**
+   * 非流式调用 AI
+   * @param option 选项参数
+   */
+  ai(option: UtoolsAiOption): UtoolsAiResult<UtoolsAiMessage>
 }
 
 declare var utools: UToolsApi;

@@ -38,7 +38,7 @@ export const ensureHoisted = (statements: types.Statement[]) =>
   });
 
 
-const includeRE = /\.([jt]sx?|vue)$/i;
+const includeRE = /\.[jt]sx?$/i;
 export const transformFilter = createFilter(includeRE, 'node_modules');
 
 export const createPreloadFilter = (preloadPath: string) =>
